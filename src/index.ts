@@ -1,58 +1,12 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { typeDefs } from './schema/typeDefs';
+import { resolvers } from './resolvers';
 
-// Step 0 : Apollo Server basique avec un type et une query simple
-// Tout dans un seul fichier pour commencer
-
-// Définition du schéma GraphQL
-const typeDefs = `#graphql
-  # Type User basique pour commencer
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-  }
-
-  # Type Post pour notre blog
-  type Post {
-    id: ID!
-    title: String!
-    content: String!
-    authorId: ID!
-  }
-
-  # Queries disponibles
-  type Query {
-    # Query de test
-    hello: String!
-
-    # Récupérer tous les users
-    users: [User!]!
-
-    # Récupérer un user par ID
-    user(id: ID!): User
-  }
-`;
-
-// Données mockées en mémoire (pas de DB pour le moment)
-const users = [
-  { id: '1', name: 'Alice', email: 'alice@example.com' },
-  { id: '2', name: 'Bob', email: 'bob@example.com' },
-  { id: '3', name: 'Charlie', email: 'charlie@example.com' },
-];
-
-// Resolvers : logique pour répondre aux queries
-const resolvers = {
-  Query: {
-    hello: () => 'Hello World! Bienvenue dans la formation GraphQL 🚀',
-
-    users: () => users,
-
-    user: (_: any, args: { id: string }) => {
-      return users.find(user => user.id === args.id);
-    },
-  },
-};
+// Step 1 : Code organisé en modules
+// - typeDefs dans /schema
+// - resolvers dans /resolvers
+// - données dans /data
 
 // Création du serveur Apollo
 const server = new ApolloServer({
@@ -67,25 +21,40 @@ async function startServer() {
   });
 
   console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 0: Monofichier basique`);
-  console.log(`\n💡 Essayez ces queries dans Apollo Studio :`);
+  console.log(`📚 Formation GraphQL - Step 1: Code modulaire`);
+  console.log(`\n✨ Nouveautés de ce step :`);
+  console.log(`  - Code organisé en modules`);
+  console.log(`  - TypeDefs dans un fichier séparé`);
+  console.log(`  - Resolvers organisés par type`);
+  console.log(`  - Données mockées externalisées`);
+  console.log(`  - Mutations disponibles`);
+  console.log(`\n💡 Queries et Mutations à tester :`);
   console.log(`
-  query Hello {
-    hello
+  query GetPosts {
+    posts {
+      id
+      title
+      content
+      authorId
+    }
   }
 
-  query GetUsers {
-    users {
+  mutation CreateUser {
+    createUser(name: "David", email: "david@example.com") {
       id
       name
       email
     }
   }
 
-  query GetUser {
-    user(id: "1") {
-      name
-      email
+  mutation CreatePost {
+    createPost(
+      title: "Mon nouveau post"
+      content: "Contenu intéressant..."
+      authorId: "1"
+    ) {
+      id
+      title
     }
   }
   `);
