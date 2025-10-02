@@ -1,28 +1,36 @@
-// Step 1: TypeDefs dans un fichier séparé
+// Step 2: Relations entre types
 
 export const typeDefs = `#graphql
-  # Type User pour notre application
+  # Type User avec ses relations
   type User {
     id: ID!
     name: String!
     email: String!
+    # Relations
+    posts: [Post!]!
+    comments: [Comment!]!
   }
 
-  # Type Post pour notre blog
+  # Type Post avec ses relations
   type Post {
     id: ID!
     title: String!
     content: String!
     authorId: ID!
-    # On ajoutera la relation author plus tard
+    # Relations
+    author: User!
+    comments: [Comment!]!
   }
 
-  # Type Comment (préparation)
+  # Type Comment avec ses relations
   type Comment {
     id: ID!
     text: String!
     postId: ID!
     authorId: ID!
+    # Relations
+    post: Post!
+    author: User!
   }
 
   # Queries disponibles
@@ -37,14 +45,24 @@ export const typeDefs = `#graphql
     # Posts
     posts: [Post!]!
     post(id: ID!): Post
+    postsByAuthor(authorId: ID!): [Post!]!
+
+    # Comments
+    comments: [Comment!]!
+    commentsByPost(postId: ID!): [Comment!]!
   }
 
-  # Mutations (préparation pour Step 2)
+  # Mutations
   type Mutation {
-    # Créer un user
+    # Users
     createUser(name: String!, email: String!): User!
+    updateUser(id: ID!, name: String, email: String): User
 
-    # Créer un post
+    # Posts
     createPost(title: String!, content: String!, authorId: ID!): Post!
+    updatePost(id: ID!, title: String, content: String): Post
+
+    # Comments
+    createComment(text: String!, postId: ID!, authorId: ID!): Comment!
   }
 `;

@@ -1,9 +1,9 @@
-// Step 1: Query resolvers dans un fichier séparé
+// Step 2: Query resolvers enrichis
 
-import { users, posts } from '../data/mockData';
+import { users, posts, comments } from '../data/mockData';
 
 export const queryResolvers = {
-  hello: () => 'Hello World! Formation GraphQL Step 1 🚀',
+  hello: () => 'Hello World! Formation GraphQL Step 2 🚀',
 
   // User queries
   users: () => users,
@@ -17,5 +17,16 @@ export const queryResolvers = {
 
   post: (_: any, args: { id: string }) => {
     return posts.find(post => post.id === args.id);
+  },
+
+  postsByAuthor: (_: any, args: { authorId: string }) => {
+    return posts.filter(post => post.authorId === args.authorId);
+  },
+
+  // Comment queries (nouveau)
+  comments: () => comments,
+
+  commentsByPost: (_: any, args: { postId: string }) => {
+    return comments.filter(comment => comment.postId === args.postId);
   },
 };
