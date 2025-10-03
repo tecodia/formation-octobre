@@ -2,6 +2,7 @@ import './App.css'
 import Feed from './components/Feed'
 import FeedPaginated from './components/FeedPaginated'
 import PostDetail from './components/PostDetail'
+import CommentNotification from './components/CommentNotification'
 import { Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
 
@@ -10,6 +11,9 @@ function App() {
 
   return (
     <div className="App">
+      {/* Notification globale pour les nouveaux commentaires */}
+      <CommentNotification />
+
       <Routes>
         <Route
           path="/"
