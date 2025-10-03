@@ -1,18 +1,21 @@
-# Step 3 : Intégration PostgreSQL + Prisma
+# Step 3 : Base de données PostgreSQL avec Prisma ORM et Architecture DataSources
 
-## Objectifs
+## 🎯 Objectifs de ce step
 
-Dans ce step, nous intégrons une vraie base de données PostgreSQL avec Prisma ORM pour remplacer les données mockées en mémoire.
+Ce step introduit une vraie base de données PostgreSQL avec Prisma comme ORM, organisée avec une architecture professionnelle utilisant le pattern DataSources pour encapsuler les accès aux données.
 
-## Nouveautés de ce Step
+### Nouveautés du Step 3 :
+- ✅ Base de données PostgreSQL via Docker
+- ✅ Prisma ORM pour la gestion de la base de données
+- ✅ **Architecture DataSources** pour encapsuler les appels Prisma
+- ✅ **Organisation modulaire** des resolvers et typeDefs
+- ✅ Migrations de schéma versionnées
+- ✅ Types TypeScript générés automatiquement
+- ✅ Relations bidirectionnelles dans la base de données
+- ✅ Seed automatique pour les données de test
+- ✅ Interface d'administration Adminer
 
-- **Docker Compose** : PostgreSQL et Adminer pour la gestion de la base
-- **Prisma ORM** : Gestion type-safe de la base de données
-- **Migrations** : Versioning du schéma de base de données
-- **Seed** : Script d'initialisation des données
-- **Resolvers asynchrones** : Connexion réelle à PostgreSQL
-
-## Architecture
+## 🏗️ Architecture
 
 ```
 graphql-formation/
@@ -24,24 +27,44 @@ graphql-formation/
 ├── src/
 │   ├── lib/
 │   │   └── prisma.ts          # Client Prisma singleton
-│   ├── resolvers/
-│   │   ├── index.prisma.ts           # Resolvers principaux avec Prisma
-│   │   ├── queryResolvers.prisma.ts  # Queries avec Prisma
-│   │   ├── mutationResolvers.prisma.ts # Mutations avec Prisma
-│   │   └── typeResolvers.prisma.ts    # Relations avec Prisma
-│   ├── schema/
-│   │   └── typeDefs.ts        # Schéma GraphQL (inchangé)
-│   └── index.prisma.ts        # Serveur avec Prisma
+│   ├── datasources/           # 🆕 DataSources pour encapsuler Prisma
+│   │   ├── UserDataSource.ts
+│   │   ├── PostDataSource.ts
+│   │   └── CommentDataSource.ts
+│   ├── resolvers/             # 🆕 Organisation modulaire
+│   │   ├── Query/             # Un fichier par domaine de query
+│   │   │   ├── users.ts
+│   │   │   ├── posts.ts
+│   │   │   └── comments.ts
+│   │   ├── Mutation/          # Un fichier par domaine de mutation
+│   │   │   ├── userMutations.ts
+│   │   │   ├── postMutations.ts
+│   │   │   └── commentMutations.ts
+│   │   ├── User/              # Field resolvers par type
+│   │   │   └── index.ts
+│   │   ├── Post/
+│   │   │   └── index.ts
+│   │   ├── Comment/
+│   │   │   └── index.ts
+│   │   └── index.ts           # Combine tous les resolvers
+│   ├── schema/                # 🆕 TypeDefs modulaires
+│   │   ├── types/
+│   │   │   ├── User.ts
+│   │   │   ├── Post.ts
+│   │   │   └── Comment.ts
+│   │   ├── queries.ts
+│   │   ├── mutations.ts
+│   │   └── index.ts           # Combine tous les typeDefs
+│   └── index.ts               # Serveur Apollo
 └── package.json
 ```
 
-## Installation
+## 📋 Installation
 
 ### 1. Installer les dépendances Prisma
 
 ```bash
 npm install prisma @prisma/client
-npm install -D prisma
 ```
 
 ### 2. Démarrer PostgreSQL avec Docker
@@ -69,10 +92,10 @@ DATABASE_URL="postgresql://graphql_user:graphql_password@localhost:5432/graphql_
 
 ```bash
 # Générer le client Prisma
-npm run prisma:generate
+npx prisma generate
 
 # Créer et appliquer les migrations
-npm run prisma:migrate
+npx prisma migrate dev --name init
 
 # Initialiser les données avec le seed
 npm run prisma:seed
@@ -83,19 +106,17 @@ Ou tout en une commande :
 npm run db:setup
 ```
 
-## Démarrage
+## 🚀 Démarrage
 
-### Mode développement avec Prisma
 ```bash
-npm run dev:prisma
+# Mode développement
+npm run dev
+
+# Mode production
+npm run start
 ```
 
-### Mode production avec Prisma
-```bash
-npm run start:prisma
-```
-
-## Accès aux interfaces
+## 🔗 Accès aux interfaces
 
 - **GraphQL Playground** : http://localhost:4000
 - **Adminer** : http://localhost:8080
@@ -104,38 +125,92 @@ npm run start:prisma
   - Utilisateur : graphql_user
   - Mot de passe : graphql_password
   - Base de données : graphql_formation
+- **Prisma Studio** : `npm run prisma:studio` → http://localhost:5555
 
-## Schéma Prisma
+## 🏛️ Architecture DataSources
+
+### Principe
+
+Les DataSources encapsulent **tous** les appels à Prisma, offrant une couche d'abstraction entre les resolvers GraphQL et la base de données :
+
+```typescript
+// Resolver (src/resolvers/Query/users.ts)
+export const usersQueryResolvers = {
+  users: async () => {
+    const dataSource = new UserDataSource();
+    return dataSource.getAllUsers();
+  },
+  user: async (_: any, args: { id: string }) => {
+    const dataSource = new UserDataSource();
+    return dataSource.getUserById(args.id);
+  }
+};
+
+// DataSource (src/datasources/UserDataSource.ts)
+export class UserDataSource {
+  async getAllUsers() {
+    return prisma.user.findMany();
+  }
+
+  async getUserById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
+  }
+}
+```
+
+### Avantages
+
+- **Séparation des responsabilités** : Les resolvers ne connaissent pas Prisma
+- **Testabilité** : Les DataSources peuvent être mockés facilement
+- **Réutilisabilité** : Les méthodes des DataSources sont réutilisables
+- **Évolutivité** : Facile de changer de base de données ou d'ORM
+
+## 📊 Schéma Prisma
 
 ### Modèles
 
 **User**
-- `id` : String (CUID)
-- `name` : String
-- `email` : String (unique)
-- `createdAt` : DateTime
-- `updatedAt` : DateTime
-- Relations : `posts[]`, `comments[]`
+```prisma
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  posts     Post[]
+  comments  Comment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
 
 **Post**
-- `id` : String (CUID)
-- `title` : String
-- `content` : String
-- `authorId` : String
-- `createdAt` : DateTime
-- `updatedAt` : DateTime
-- Relations : `author` (User), `comments[]`
+```prisma
+model Post {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+```
 
 **Comment**
-- `id` : String (CUID)
-- `text` : String
-- `postId` : String
-- `authorId` : String
-- `createdAt` : DateTime
-- `updatedAt` : DateTime
-- Relations : `post` (Post), `author` (User)
+```prisma
+model Comment {
+  id        String   @id @default(cuid())
+  text      String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
 
-## Exemples de Queries
+## 📝 Exemples de Queries
 
 ### Récupérer tous les utilisateurs avec leurs posts
 
@@ -158,8 +233,8 @@ query GetUsersWithPosts {
 ### Récupérer un post avec auteur et commentaires
 
 ```graphql
-query GetPostDetails {
-  posts {
+query GetPostDetails($postId: ID!) {
+  post(id: $postId) {
     id
     title
     content
@@ -184,16 +259,23 @@ query GetPostDetails {
 ### Récupérer les posts d'un auteur
 
 ```graphql
-query GetPostsByAuthor {
-  postsByAuthor(authorId: "REMPLACER_PAR_UN_ID") {
+query GetPostsByAuthor($authorId: ID!) {
+  postsByAuthor(authorId: $authorId) {
     id
     title
     content
+    comments {
+      id
+      text
+      author {
+        name
+      }
+    }
   }
 }
 ```
 
-## Exemples de Mutations
+## ✏️ Exemples de Mutations
 
 ### Créer un utilisateur
 
@@ -258,6 +340,7 @@ mutation UpdateUser {
   updateUser(
     id: "REMPLACER_PAR_UN_ID"
     name: "Nouveau nom"
+    email: "nouveau@email.com"
   ) {
     id
     name
@@ -267,19 +350,66 @@ mutation UpdateUser {
 }
 ```
 
-## Scripts NPM disponibles
+## 📚 Organisation du code
+
+### Structure des DataSources
+
+Chaque DataSource gère un domaine spécifique :
+
+```typescript
+// src/datasources/UserDataSource.ts
+export class UserDataSource {
+  async getAllUsers() { /* ... */ }
+  async getUserById(id: string) { /* ... */ }
+  async createUser(data: CreateUserInput) { /* ... */ }
+  async updateUser(id: string, data: UpdateUserInput) { /* ... */ }
+  async getPostsByUserId(userId: string) { /* ... */ }
+  async getCommentsByUserId(userId: string) { /* ... */ }
+}
+```
+
+### Structure des Resolvers
+
+**Query Resolvers** (`src/resolvers/Query/`)
+- `users.ts` : Queries pour les utilisateurs
+- `posts.ts` : Queries pour les posts
+- `comments.ts` : Queries pour les commentaires
+
+**Mutation Resolvers** (`src/resolvers/Mutation/`)
+- `userMutations.ts` : Mutations pour les utilisateurs
+- `postMutations.ts` : Mutations pour les posts
+- `commentMutations.ts` : Mutations pour les commentaires
+
+**Field Resolvers** (`src/resolvers/[Type]/`)
+- `User/index.ts` : Résout les relations de User (posts, comments)
+- `Post/index.ts` : Résout les relations de Post (author, comments)
+- `Comment/index.ts` : Résout les relations de Comment (post, author)
+
+### Structure des TypeDefs
+
+**Types** (`src/schema/types/`)
+- `User.ts` : Définition du type User
+- `Post.ts` : Définition du type Post
+- `Comment.ts` : Définition du type Comment
+
+**Queries et Mutations**
+- `queries.ts` : Toutes les queries disponibles
+- `mutations.ts` : Toutes les mutations disponibles
+
+## 🛠️ Scripts NPM disponibles
 
 | Commande | Description |
 |----------|-------------|
-| `npm run dev:prisma` | Démarrer en mode développement avec Prisma |
-| `npm run start:prisma` | Démarrer en mode production avec Prisma |
+| `npm run dev` | Démarrer en mode développement |
+| `npm run start` | Démarrer en mode production |
+| `npm run build` | Compiler TypeScript |
 | `npm run prisma:generate` | Générer le client Prisma |
 | `npm run prisma:migrate` | Créer et appliquer une migration |
 | `npm run prisma:seed` | Initialiser les données |
 | `npm run prisma:studio` | Ouvrir Prisma Studio (GUI) |
 | `npm run db:setup` | Configuration complète de la DB |
 
-## Commandes Docker utiles
+## 🐳 Commandes Docker utiles
 
 ```bash
 # Démarrer les conteneurs
@@ -295,89 +425,20 @@ docker-compose logs -f
 docker-compose down -v
 ```
 
-## Gestion des migrations
+## 🔄 Différences avec le Step 2
 
-### Créer une nouvelle migration
+| Aspect | Step 2 | Step 3 |
+|--------|--------|--------|
+| **Stockage** | Données en mémoire (arrays) | PostgreSQL |
+| **Persistance** | Non | Oui |
+| **Architecture** | Resolvers simples | DataSources + Resolvers modulaires |
+| **Organisation** | Un fichier par type de resolver | Un fichier par domaine |
+| **TypeDefs** | Un seul fichier | Fichiers séparés par type |
+| **ORM** | Aucun | Prisma |
+| **Migrations** | N/A | Versionnées avec Prisma |
+| **Types** | Manuel | Générés automatiquement |
 
-```bash
-npm run prisma:migrate
-# Vous serez invité à nommer la migration
-```
-
-### Réinitialiser la base de données
-
-```bash
-# Supprimer et recréer la base
-npx prisma migrate reset
-
-# Puis réappliquer le seed
-npm run prisma:seed
-```
-
-## Prisma Studio
-
-Interface graphique pour explorer et modifier les données :
-
-```bash
-npm run prisma:studio
-```
-
-Ouvre automatiquement http://localhost:5555
-
-## Différences avec le Step 2
-
-### Avant (Step 2)
-- Données en mémoire (tableaux JavaScript)
-- Données perdues au redémarrage
-- Resolvers synchrones
-- Pas de persistance
-
-### Maintenant (Step 3)
-- Base de données PostgreSQL
-- Données persistantes
-- Resolvers asynchrones
-- ORM type-safe avec Prisma
-- Migrations versionnées
-- Seed automatique
-
-## Points techniques importants
-
-### Client Prisma Singleton
-
-Le fichier `src/lib/prisma.ts` utilise un pattern singleton pour éviter de créer plusieurs connexions :
-
-```typescript
-export const prisma = global.prisma || new PrismaClient({
-  log: ['query', 'error', 'warn'],
-});
-```
-
-### Resolvers asynchrones
-
-Tous les resolvers deviennent asynchrones avec Prisma :
-
-```typescript
-// Avant
-users: () => users,
-
-// Maintenant
-users: async () => {
-  return await prisma.user.findMany();
-},
-```
-
-### Relations Prisma
-
-Les relations sont définies dans le schéma et gérées automatiquement :
-
-```prisma
-model Post {
-  author    User      @relation(fields: [authorId], references: [id])
-  comments  Comment[]
-}
-```
-
-## Résolution de problèmes
+## 🐛 Résolution de problèmes
 
 ### Erreur de connexion PostgreSQL
 
@@ -387,12 +448,15 @@ docker ps
 
 # Redémarrer les conteneurs
 docker-compose restart
+
+# Vérifier les logs
+docker-compose logs postgres
 ```
 
 ### Prisma Client non généré
 
 ```bash
-npm run prisma:generate
+npx prisma generate
 ```
 
 ### Migration échouée
@@ -403,18 +467,19 @@ npx prisma migrate reset
 npm run prisma:seed
 ```
 
-## Prochaines étapes
+## 🚀 Prochaines étapes (Step 4)
 
-Step 4 pourrait inclure :
-- Authentification et autorisation
-- DataLoader pour optimiser les N+1 queries
-- Pagination
+- Authentification et autorisation avec JWT
+- DataLoader pour optimiser les requêtes N+1
+- Pagination avec curseurs
 - Filtres et tri avancés
-- Subscriptions en temps réel
+- Subscriptions en temps réel avec WebSockets
+- Tests unitaires et d'intégration
 
-## Ressources
+## 📚 Ressources
 
 - [Documentation Prisma](https://www.prisma.io/docs)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+- [GraphQL Best Practices](https://graphql.org/learn/best-practices/)

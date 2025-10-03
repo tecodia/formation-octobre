@@ -1,12 +1,13 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
-import { typeDefs } from './schema/typeDefs';
+import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 
-// Step 1 : Code organisé en modules
-// - typeDefs dans /schema
-// - resolvers dans /resolvers
-// - données dans /data
+// Step 3 : Architecture refactorisée avec DataSources
+// - DataSources pour encapsuler les appels Prisma
+// - TypeDefs organisés par type
+// - Resolvers organisés par domaine
+// - Séparation claire des responsabilités
 
 // Création du serveur Apollo
 const server = new ApolloServer({
@@ -21,13 +22,13 @@ async function startServer() {
   });
 
   console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 1: Code modulaire`);
-  console.log(`\n✨ Nouveautés de ce step :`);
-  console.log(`  - Code organisé en modules`);
-  console.log(`  - TypeDefs dans un fichier séparé`);
-  console.log(`  - Resolvers organisés par type`);
-  console.log(`  - Données mockées externalisées`);
-  console.log(`  - Mutations disponibles`);
+  console.log(`📚 Formation GraphQL - Step 3: Architecture refactorisée avec DataSources`);
+  console.log(`\n✨ Architecture :`);
+  console.log(`  - DataSources pour encapsuler Prisma`);
+  console.log(`  - TypeDefs organisés par domaine`);
+  console.log(`  - Resolvers séparés par responsabilité`);
+  console.log(`  - Base de données PostgreSQL avec Prisma`);
+  console.log(`  - Relations entre entités`);
   console.log(`\n💡 Queries et Mutations à tester :`);
   console.log(`
   query GetPosts {

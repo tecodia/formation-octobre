@@ -1,6 +1,6 @@
-# Step 3 - Guide de démarrage rapide
+# Step 3 - Guide de démarrage rapide - Architecture DataSources
 
-## Installation et démarrage
+## 🚀 Installation et démarrage
 
 ### 1. Prérequis
 - Docker Desktop installé et lancé
@@ -21,7 +21,7 @@ docker-compose up -d
 # Créer le fichier .env
 cp .env.example .env
 
-# Configurer Prisma
+# Configurer Prisma (génération, migrations, seed)
 npm run db:setup
 ```
 
@@ -32,12 +32,12 @@ Cette commande va :
 
 ### 5. Démarrer le serveur GraphQL
 ```bash
-npm run dev:prisma
+npm run dev
 ```
 
 Le serveur démarre sur http://localhost:4000
 
-## Accès aux interfaces
+## 🔗 Accès aux interfaces
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
@@ -45,7 +45,7 @@ Le serveur démarre sur http://localhost:4000
 | Adminer (DB Admin) | http://localhost:8080 | System: PostgreSQL<br>Server: postgres<br>Username: graphql_user<br>Password: graphql_password<br>Database: graphql_formation |
 | Prisma Studio | `npm run prisma:studio` | http://localhost:5555 |
 
-## Test rapide
+## 🧪 Test rapide
 
 Ouvrez http://localhost:4000 et testez cette query :
 
@@ -69,7 +69,49 @@ query GetUsersWithPosts {
 }
 ```
 
-## Commandes utiles
+## 🏗️ Architecture DataSources
+
+Le Step 3 utilise une architecture professionnelle avec DataSources :
+
+```
+src/
+├── datasources/           # Encapsulation des appels Prisma
+│   ├── UserDataSource.ts
+│   ├── PostDataSource.ts
+│   └── CommentDataSource.ts
+├── resolvers/            # Organisation modulaire
+│   ├── Query/           # Un fichier par domaine
+│   │   ├── users.ts
+│   │   ├── posts.ts
+│   │   └── comments.ts
+│   ├── Mutation/
+│   │   ├── userMutations.ts
+│   │   ├── postMutations.ts
+│   │   └── commentMutations.ts
+│   └── [Type]/          # Field resolvers
+│       └── index.ts
+├── schema/              # TypeDefs modulaires
+│   ├── types/
+│   ├── queries.ts
+│   └── mutations.ts
+└── index.ts            # Serveur Apollo
+```
+
+### Flux de données
+
+```
+Client GraphQL
+    ↓
+Resolvers (ne connaissent pas Prisma)
+    ↓
+DataSources (encapsulent Prisma)
+    ↓
+Prisma Client
+    ↓
+PostgreSQL
+```
+
+## 📝 Commandes utiles
 
 ### Base de données
 ```bash
@@ -78,6 +120,9 @@ npx prisma migrate reset
 
 # Ouvrir Prisma Studio (GUI)
 npm run prisma:studio
+
+# Appliquer les migrations
+npx prisma migrate dev
 
 # Voir les données dans Adminer
 # Ouvrir http://localhost:8080
@@ -95,39 +140,14 @@ docker-compose down
 docker-compose down -v
 ```
 
-## Structure des fichiers créés
-
-```
-├── docker-compose.yml          # Configuration Docker
-├── .env.example               # Template des variables d'environnement
-├── prisma/
-│   ├── schema.prisma         # Schéma de la base de données
-│   ├── seed.ts               # Données initiales
-│   └── migrations/           # Historique des migrations
-├── src/
-│   ├── lib/
-│   │   └── prisma.ts        # Client Prisma
-│   ├── index.prisma.ts      # Serveur avec Prisma
-│   └── resolvers/
-│       ├── *.prisma.ts      # Resolvers avec Prisma
-```
-
-## Données de test créées
+## 📊 Données de test créées
 
 Le seed initialise :
 - **3 utilisateurs** : Alice, Bob, Charlie
 - **4 posts** avec du contenu sur GraphQL et Prisma
 - **7 commentaires** sur les différents posts
 
-## Prochaines étapes
-
-Consultez `README_STEP3.md` pour :
-- Documentation complète de l'API
-- Exemples de queries et mutations
-- Détails techniques sur Prisma
-- Résolution de problèmes
-
-## Problèmes courants
+## 🐛 Problèmes courants
 
 ### Docker n'est pas lancé
 ```bash
@@ -146,5 +166,14 @@ docker-compose ps
 
 ### Client Prisma non généré
 ```bash
-npm run prisma:generate
+npx prisma generate
 ```
+
+## 📚 Prochaines étapes
+
+Consultez `README_STEP3.md` pour :
+- Documentation complète de l'architecture DataSources
+- Exemples de queries et mutations avancées
+- Détails techniques sur Prisma
+- Organisation modulaire du code
+- Best practices GraphQL
