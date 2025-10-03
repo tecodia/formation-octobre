@@ -1,31 +1,54 @@
-// DataSource pour encapsuler toutes les opérations Prisma liées aux Comments
+// Step 6: DataSource avec cache Redis pour les Comments
 
 import { prisma } from '../lib/prisma';
+import { CacheManager } from '../cache/CacheManager';
 
 export class CommentDataSource {
+  private cache: CacheManager;
+
+  constructor() {
+    this.cache = new CacheManager('comment', 300); // TTL de 5 minutes
+  }
   // Queries
   async getAllComments() {
-    return await prisma.comment.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    return await this.cache.withCache(
+      'all-comments',
+      async () => {
+        return await prisma.comment.findMany({
+          orderBy: { createdAt: 'desc' },
+        });
+      },
+      60 // Cache pour 1 minute
+    );
   }
 
   async getCommentsByPostId(postId: string) {
-    return await prisma.comment.findMany({
-      where: { postId },
-      orderBy: { createdAt: 'asc' },
-    });
+    return await this.cache.withCache(
+      `comments:post:${postId}`,
+      async () => {
+        return await prisma.comment.findMany({
+          where: { postId },
+          orderBy: { createdAt: 'asc' },
+        });
+      }
+    );
   }
 
   // Mutations
   async createComment(text: string, postId: string, authorId: string) {
-    return await prisma.comment.create({
+    const newComment = await prisma.comment.create({
       data: {
         text,
         postId,
         authorId,
       },
     });
+
+    // Invalider le cache après création
+    await this.cache.delete('all-comments');
+    await this.cache.delete(`comments:post:${postId}`);
+
+    return newComment;
   }
 
   // Relations

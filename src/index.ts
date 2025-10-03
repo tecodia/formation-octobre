@@ -1,22 +1,44 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { KeyvAdapter } from '@apollo/utils.keyvadapter';
+import responseCachePlugin from '@apollo/server-plugin-response-cache';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import { sqlTrackingPlugin } from './plugins/sqlTrackingPlugin';
 import { createContext } from './context';
 import { setCurrentContext } from './lib/prisma';
+import { redisClient } from './lib/redis';
 
-// Step 5 : DataLoader + Plugin SQL Tracking
-// - DataLoader pour optimiser les requêtes N+1
-// - Batching et caching des requêtes similaires
-// - Plugin Apollo pour capturer les requêtes SQL
-// - Contexte GraphQL avec DataLoaders et tracking SQL
+// Step 6 : Cache Redis + Persisted Queries
+// - Cache Redis pour les DataSources
+// - Cache HTTP pour les réponses
+// - Préparation pour les Persisted Queries
+// - Optimisation des performances
 
-// Création du serveur Apollo avec plugin SQL tracking
+// Adaptateur Redis pour le cache Apollo
+const cache = new KeyvAdapter(redisClient as any, {
+  ttl: 300 * 1000, // 5 minutes en millisecondes
+});
+
+// Création du serveur Apollo avec cache et plugins
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  plugins: [sqlTrackingPlugin],
+  plugins: [
+    sqlTrackingPlugin,
+    responseCachePlugin({
+      // Cache basé sur les sessions (optionnel)
+      sessionId: (requestContext) => {
+        // Pour cache public, retourner null
+        // Pour cache privé, retourner un ID de session
+        return null;
+      },
+    }),
+  ],
+  cache,
+  persistedQueries: {
+    ttl: 900, // 15 minutes pour les persisted queries
+  },
 });
 
 // Démarrage du serveur
@@ -33,13 +55,13 @@ async function startServer() {
   });
 
   console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 5: DataLoader + SQL Tracking`);
+  console.log(`📚 Formation GraphQL - Step 6: Cache Redis + Persisted Queries`);
   console.log(`\n✨ Nouvelles fonctionnalités :`);
-  console.log(`  - DataLoader pour optimiser les requêtes N+1`);
-  console.log(`  - Batching automatique des requêtes similaires`);
-  console.log(`  - Cache par requête GraphQL`);
-  console.log(`  - Plugin SQL Tracking pour voir les optimisations`);
-  console.log(`  - Réduction de 80-90% des requêtes SQL`);
+  console.log(`  - Cache Redis pour les DataSources`);
+  console.log(`  - Cache HTTP avec headers Cache-Control`);
+  console.log(`  - Support des Persisted Queries`);
+  console.log(`  - Invalidation intelligente du cache`);
+  console.log(`  - Performance optimale avec cache multi-niveaux`);
   console.log(`\n💡 Exemple de query avec SQL tracking :`);
   console.log(`
   query GetUsersWithPosts {

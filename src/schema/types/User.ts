@@ -1,12 +1,12 @@
-// Type User avec ses relations
+// Step 6: Type User avec cache control
 
 export const UserTypeDef = `#graphql
-  type User {
+  type User @cacheControl(maxAge: 300) {
     id: ID!
     name: String!
     email: String!
-    # Relations
-    posts: [Post!]!
-    comments: [Comment!]!
+    # Relations - Cache plus court car dynamique
+    posts: [Post!]! @cacheControl(maxAge: 60)
+    comments: [Comment!]! @cacheControl(maxAge: 60)
   }
 `;
