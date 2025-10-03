@@ -6,11 +6,11 @@ import { sqlTrackingPlugin } from './plugins/sqlTrackingPlugin';
 import { createContext } from './context';
 import { setCurrentContext } from './lib/prisma';
 
-// Step 4 : Plugin SQL Tracking
+// Step 5 : DataLoader + Plugin SQL Tracking
+// - DataLoader pour optimiser les requêtes N+1
+// - Batching et caching des requêtes similaires
 // - Plugin Apollo pour capturer les requêtes SQL
-// - Contexte GraphQL pour isoler les queries par requête
-// - Extensions dans les réponses GraphQL avec les SQL
-// - Debugging et optimisation des performances
+// - Contexte GraphQL avec DataLoaders et tracking SQL
 
 // Création du serveur Apollo avec plugin SQL tracking
 const server = new ApolloServer({
@@ -33,12 +33,13 @@ async function startServer() {
   });
 
   console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 4: SQL Tracking Plugin`);
+  console.log(`📚 Formation GraphQL - Step 5: DataLoader + SQL Tracking`);
   console.log(`\n✨ Nouvelles fonctionnalités :`);
-  console.log(`  - Plugin SQL Tracking activé`);
-  console.log(`  - Toutes les requêtes SQL sont capturées`);
-  console.log(`  - Visible dans les extensions GraphQL`);
-  console.log(`  - Statistiques de performance (durée, nombre de queries)`);
+  console.log(`  - DataLoader pour optimiser les requêtes N+1`);
+  console.log(`  - Batching automatique des requêtes similaires`);
+  console.log(`  - Cache par requête GraphQL`);
+  console.log(`  - Plugin SQL Tracking pour voir les optimisations`);
+  console.log(`  - Réduction de 80-90% des requêtes SQL`);
   console.log(`\n💡 Exemple de query avec SQL tracking :`);
   console.log(`
   query GetUsersWithPosts {

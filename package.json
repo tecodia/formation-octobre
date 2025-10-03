@@ -26,6 +26,7 @@
     "@apollo/server": "^5.0.0",
     "@prisma/client": "^6.16.3",
     "@types/node": "^24.6.2",
+    "dataloader": "^2.2.3",
     "graphql": "^16.11.0",
     "prisma": "^6.16.3",
     "tsx": "^4.20.6",

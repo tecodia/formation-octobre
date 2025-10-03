@@ -1,17 +1,15 @@
-// Field resolvers pour Comment (relations)
+// Step 5: Field resolvers pour Comment avec DataLoaders
 
-import { UserDataSource } from '../../datasources/UserDataSource';
-import { PostDataSource } from '../../datasources/PostDataSource';
-
-const userDataSource = new UserDataSource();
-const postDataSource = new PostDataSource();
+import type { GraphQLContext } from '../../context';
 
 export const commentFieldResolvers = {
-  post: async (parent: { postId: string }) => {
-    return await postDataSource.getPostById(parent.postId);
+  post: async (parent: { postId: string }, _: any, context: GraphQLContext) => {
+    // Utiliser le DataLoader pour batcher les requêtes Post
+    return context.loaders.postLoader.load(parent.postId);
   },
 
-  author: async (parent: { authorId: string }) => {
-    return await userDataSource.getUserById(parent.authorId);
+  author: async (parent: { authorId: string }, _: any, context: GraphQLContext) => {
+    // Utiliser le DataLoader pour batcher les requêtes User
+    return context.loaders.userLoader.load(parent.authorId);
   },
 };
