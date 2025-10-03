@@ -12,4 +12,12 @@ export const postFieldResolvers = {
     // Utiliser le DataLoader pour batcher les requêtes Comment
     return context.loaders.commentsByPostLoader.load(parent.id);
   },
+
+  createdAt: (parent: { createdAt: Date | string }) => {
+    return parent.createdAt instanceof Date ? parent.createdAt.toISOString() : parent.createdAt;
+  },
+
+  updatedAt: (parent: { updatedAt: Date | string }) => {
+    return parent.updatedAt instanceof Date ? parent.updatedAt.toISOString() : parent.updatedAt;
+  },
 };

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { gql  } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
+import { useNavigate } from 'react-router-dom';
 
 const GET_FEED_PAGINATED = gql`
   query GetFeedPaginated($first: Int, $after: String) {
@@ -182,6 +183,7 @@ function renderContent(content: FeedEdge['node']['content']) {
 export default function FeedPaginated() {
   const POSTS_PER_PAGE = 2; // Afficher 2 posts à la fois comme demandé
   const [allEdges, setAllEdges] = useState<FeedEdge[]>([]);
+  const navigate = useNavigate();
 
   const { loading, error, data, fetchMore } = useQuery<FeedPaginatedData>(
     GET_FEED_PAGINATED,
@@ -248,7 +250,8 @@ export default function FeedPaginated() {
         {allEdges.map((edge) => (
           <div
             key={edge.cursor}
-            className="feed-item bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+            onClick={() => navigate(`/post/${edge.node.content.id}`)}
+            className="feed-item bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:bg-gray-700"
           >
             <div className="mb-4">
               {renderContent(edge.node.content)}

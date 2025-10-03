@@ -6,6 +6,8 @@ export const PostTypeDef = `#graphql
     title: String!
     content: String!
     authorId: ID!
+    createdAt: String!
+    updatedAt: String!
     # Relations
     author: User!
     comments: [Comment!]!
