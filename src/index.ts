@@ -2,63 +2,68 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
+import { sqlTrackingPlugin } from './plugins/sqlTrackingPlugin';
+import { createContext } from './context';
+import { setCurrentContext } from './lib/prisma';
 
-// Step 3 : Architecture refactorisée avec DataSources
-// - DataSources pour encapsuler les appels Prisma
-// - TypeDefs organisés par type
-// - Resolvers organisés par domaine
-// - Séparation claire des responsabilités
+// Step 4 : Plugin SQL Tracking
+// - Plugin Apollo pour capturer les requêtes SQL
+// - Contexte GraphQL pour isoler les queries par requête
+// - Extensions dans les réponses GraphQL avec les SQL
+// - Debugging et optimisation des performances
 
-// Création du serveur Apollo
+// Création du serveur Apollo avec plugin SQL tracking
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  plugins: [sqlTrackingPlugin],
 });
 
 // Démarrage du serveur
 async function startServer() {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
+    context: async () => {
+      // Créer un nouveau contexte pour chaque requête
+      const context = createContext();
+      // Le définir comme contexte actif pour Prisma
+      setCurrentContext(context);
+      return context;
+    },
   });
 
   console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 3: Architecture refactorisée avec DataSources`);
-  console.log(`\n✨ Architecture :`);
-  console.log(`  - DataSources pour encapsuler Prisma`);
-  console.log(`  - TypeDefs organisés par domaine`);
-  console.log(`  - Resolvers séparés par responsabilité`);
-  console.log(`  - Base de données PostgreSQL avec Prisma`);
-  console.log(`  - Relations entre entités`);
-  console.log(`\n💡 Queries et Mutations à tester :`);
+  console.log(`📚 Formation GraphQL - Step 4: SQL Tracking Plugin`);
+  console.log(`\n✨ Nouvelles fonctionnalités :`);
+  console.log(`  - Plugin SQL Tracking activé`);
+  console.log(`  - Toutes les requêtes SQL sont capturées`);
+  console.log(`  - Visible dans les extensions GraphQL`);
+  console.log(`  - Statistiques de performance (durée, nombre de queries)`);
+  console.log(`\n💡 Exemple de query avec SQL tracking :`);
   console.log(`
-  query GetPosts {
-    posts {
-      id
-      title
-      content
-      authorId
-    }
-  }
-
-  mutation CreateUser {
-    createUser(name: "David", email: "david@example.com") {
+  query GetUsersWithPosts {
+    users {
       id
       name
       email
-    }
-  }
-
-  mutation CreatePost {
-    createPost(
-      title: "Mon nouveau post"
-      content: "Contenu intéressant..."
-      authorId: "1"
-    ) {
-      id
-      title
+      posts {
+        id
+        title
+      }
     }
   }
   `);
+  console.log(`\n📊 Dans la réponse, regardez "extensions.sql" :`);
+  console.log(`  {`);
+  console.log(`    "data": { ... },`);
+  console.log(`    "extensions": {`);
+  console.log(`      "sql": {`);
+  console.log(`        "queries": [{ "query": "SELECT ...", "duration": 2.5 }],`);
+  console.log(`        "totalQueries": 3,`);
+  console.log(`        "totalDuration": 10.2`);
+  console.log(`      }`);
+  console.log(`    }`);
+  console.log(`  }`);
 }
 
 startServer().catch(err => {
