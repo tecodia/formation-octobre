@@ -18,6 +18,9 @@ export const QueriesTypeDef = `#graphql
     feed: [Feed!]! @cacheControl(maxAge: 60, scope: PUBLIC)
     feedItem(id: ID!): Feed @cacheControl(maxAge: 300, scope: PUBLIC)
 
+    # Step 10: Feed avec pagination cursor-based
+    feedPaginated(first: Int, after: String, last: Int, before: String): FeedConnection! @cacheControl(maxAge: 30, scope: PUBLIC)
+
     # Comments - Cache court car souvent mis à jour
     comments: [Comment!]! @cacheControl(maxAge: 30, scope: PUBLIC)
     commentsByPost(postId: ID!): [Comment!]! @cacheControl(maxAge: 120, scope: PUBLIC)

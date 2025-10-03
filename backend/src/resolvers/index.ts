@@ -1,9 +1,10 @@
-// Step 8: Resolvers avec Subscriptions
+// Step 10: Resolvers avec Pagination cursor-based
 
 import { userQueryResolvers } from './Query/users';
 import { postQueryResolvers } from './Query/posts';
 import { commentQueryResolvers } from './Query/comments';
 import { feedQueryResolvers } from './Query/feed';
+import { feedPaginated } from './Query/feedPaginated';
 
 import { userMutationResolvers } from './Mutation/userMutations';
 import { postMutationResolvers } from './Mutation/postMutations';
@@ -26,11 +27,12 @@ import { PostContentResolvers } from './PostContent';
 
 export const resolvers = {
   Query: {
-    hello: () => 'Hello World! Formation GraphQL Step 8 - Subscriptions temps réel',
+    hello: () => 'Hello World! Formation GraphQL Step 10 - Pagination cursor-based',
     ...userQueryResolvers,
     ...postQueryResolvers,
     ...commentQueryResolvers,
     ...feedQueryResolvers,
+    feedPaginated,
   },
   Mutation: {
     ...userMutationResolvers,
