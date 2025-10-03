@@ -113,23 +113,64 @@ export default function PostDetail() {
   const [createComment, { loading: createLoading }] = useMutation(CREATE_COMMENT, {
     onCompleted: () => {
       setCommentText('');
-      refetch(); // Recharger les commentaires
     },
     onError: (error) => {
       console.error('Erreur lors de la création du commentaire:', error);
+    },
+    // Mise à jour du cache après la mutation
+    update: (cache, { data: mutationData }) => {
+      if (!mutationData?.createComment || !postId) return;
+
+      // Lire le cache actuel
+      const existingData = cache.readQuery<PostData>({
+        query: GET_POST_WITH_COMMENTS,
+        variables: { postId },
+      });
+
+      if (existingData?.post) {
+        // Écrire les nouvelles données dans le cache
+        cache.writeQuery<PostData>({
+          query: GET_POST_WITH_COMMENTS,
+          variables: { postId },
+          data: {
+            post: {
+              ...existingData.post,
+              comments: [...existingData.post.comments, mutationData.createComment],
+            },
+          },
+        });
+      }
     },
   });
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!commentText.trim() || !postId) return;
+    if (!commentText.trim() || !postId || !selectedUserId) return;
+
+    // Trouver l'utilisateur sélectionné pour l'optimistic response
+    const selectedUser = usersData?.users.find(u => u.id === selectedUserId);
+    if (!selectedUser) return;
 
     await createComment({
       variables: {
         text: commentText,
         postId,
         authorId: selectedUserId,
+      },
+      // Optimistic Response : afficher immédiatement le commentaire
+      optimisticResponse: {
+        createComment: {
+          __typename: 'Comment',
+          id: `temp-${Date.now()}`, // ID temporaire
+          text: commentText,
+          createdAt: new Date().toISOString(),
+          author: {
+            __typename: 'User',
+            id: selectedUserId,
+            name: selectedUser.name,
+          },
+        },
       },
     });
   };
