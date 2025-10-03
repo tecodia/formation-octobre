@@ -25,11 +25,21 @@ model User {
   @@map("users")
 }
 
-// Modèle Post
+// Step 7: Post avec types Union
+enum PostType {
+  ARTICLE
+  VIDEO
+  POLL
+  IMAGE
+}
+
+// Modèle Post avec support des unions
 model Post {
   id        String    @id @default(cuid())
   title     String
   content   String
+  type      PostType @default(ARTICLE)
+  metadata  Json?     // Données spécifiques selon le type
   authorId  String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -39,6 +49,7 @@ model Post {
   comments  Comment[]
 
   @@index([authorId])
+  @@index([type])
   @@map("posts")
 }
 

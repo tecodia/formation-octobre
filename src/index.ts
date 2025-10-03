@@ -9,11 +9,12 @@ import { createContext } from './context';
 import { setCurrentContext } from './lib/prisma';
 import { redisClient } from './lib/redis';
 
-// Step 6 : Cache Redis + Persisted Queries
-// - Cache Redis pour les DataSources
-// - Cache HTTP pour les réponses
-// - Préparation pour les Persisted Queries
-// - Optimisation des performances
+// Step 7 : Unions GraphQL et Types Polymorphes
+// - Union PostContent pour différents types de posts
+// - 4 types concrets : ArticlePost, VideoPost, PollPost, ImagePost
+// - Resolver __resolveType pour la résolution de type
+// - Metadata JSON dans Prisma
+// - Feed unifié avec contenu polymorphe
 
 // Adaptateur Redis pour le cache Apollo
 const cache = new KeyvAdapter(redisClient as any, {
@@ -55,13 +56,13 @@ async function startServer() {
   });
 
   console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 6: Cache Redis + Persisted Queries`);
+  console.log(`📚 Formation GraphQL - Step 7: Unions et Types Polymorphes`);
   console.log(`\n✨ Nouvelles fonctionnalités :`);
-  console.log(`  - Cache Redis pour les DataSources`);
-  console.log(`  - Cache HTTP avec headers Cache-Control`);
-  console.log(`  - Support des Persisted Queries`);
-  console.log(`  - Invalidation intelligente du cache`);
-  console.log(`  - Performance optimale avec cache multi-niveaux`);
+  console.log(`  - Union PostContent pour 4 types de posts`);
+  console.log(`  - ArticlePost, VideoPost, PollPost, ImagePost`);
+  console.log(`  - Resolver __resolveType pour déterminer le type`);
+  console.log(`  - Metadata JSON dans Prisma`);
+  console.log(`  - Feed unifié avec contenu polymorphe`);
   console.log(`\n💡 Exemple de query avec SQL tracking :`);
   console.log(`
   query GetUsersWithPosts {
