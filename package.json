@@ -1,51 +1,24 @@
 {
-  "name": "graphql-formation",
+  "name": "graphql-formation-fullstack",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "description": "Formation GraphQL - Full Stack Application (Step 9)",
   "scripts": {
-    "compile": "tsc",
-    "dev": "tsx watch src/index.ts",
-    "dev:prisma": "tsx watch src/index.prisma.ts",
-    "start": "npm run compile && node ./dist/index.js",
-    "start:prisma": "tsx src/index.prisma.ts",
-    "build": "tsc",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts",
-    "prisma:studio": "prisma studio",
-    "db:setup": "npm run prisma:generate && npm run prisma:migrate && npm run prisma:seed",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "prisma:generate": "cd backend && npm run prisma:generate",
+    "prisma:migrate": "cd backend && npm run prisma:migrate",
+    "prisma:seed": "cd backend && npm run prisma:seed",
+    "prisma:studio": "cd backend && npm run prisma:studio",
+    "db:setup": "cd backend && npm run db:setup"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
-  "keywords": [],
+  "keywords": ["graphql", "apollo", "react", "typescript", "prisma", "postgresql"],
   "author": "Jonathan Jalouzot",
   "license": "ISC",
-  "description": "Formation GraphQL avec Apollo Server",
-  "dependencies": {
-    "@apollo/server": "^5.0.0",
-    "@apollo/server-plugin-response-cache": "^5.0.0",
-    "@apollo/utils.keyvadapter": "^4.0.1",
-    "@as-integrations/express5": "^1.1.2",
-    "@graphql-tools/schema": "^10.0.25",
-    "@prisma/client": "^6.16.3",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.6.2",
-    "@types/ws": "^8.18.1",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "dataloader": "^2.2.3",
-    "express": "^5.1.0",
-    "graphql": "^16.11.0",
-    "graphql-redis-subscriptions": "^2.7.0",
-    "graphql-subscriptions": "^3.0.0",
-    "graphql-ws": "5.16.0",
-    "ioredis": "^5.8.0",
-    "prisma": "^6.16.3",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
-    "ws": "^8.18.3"
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
