@@ -1,4 +1,4 @@
-// Step 7: Combine tous les typeDefs avec unions
+// Step 8: Combine tous les typeDefs avec subscriptions
 
 import { UserTypeDef } from './types/User';
 import { PostTypeDef } from './types/Post';
@@ -11,6 +11,7 @@ import { FeedTypeDef } from './types/Feed';
 import { PostContentUnion } from './unions/PostContent';
 import { QueriesTypeDef } from './queries';
 import { MutationsTypeDef } from './mutations';
+import { SubscriptionsTypeDef } from './subscriptions';
 import { DirectivesTypeDef } from './directives';
 
 export const typeDefs = [
@@ -26,4 +27,5 @@ export const typeDefs = [
   PostContentUnion,
   QueriesTypeDef,
   MutationsTypeDef,
+  SubscriptionsTypeDef,
 ];

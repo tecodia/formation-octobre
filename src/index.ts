@@ -1,95 +1,174 @@
+// Step 8: Serveur Apollo avec Subscriptions WebSocket
+
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
-import { KeyvAdapter } from '@apollo/utils.keyvadapter';
+import { expressMiddleware } from '@as-integrations/express5';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import express from 'express';
+import { createServer } from 'http';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 import responseCachePlugin from '@apollo/server-plugin-response-cache';
+import { KeyvAdapter } from '@apollo/utils.keyvadapter';
+
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
-import { sqlTrackingPlugin } from './plugins/sqlTrackingPlugin';
 import { createContext } from './context';
 import { setCurrentContext } from './lib/prisma';
+import { sqlTrackingPlugin } from './plugins/sqlTrackingPlugin';
 import { redisClient } from './lib/redis';
 
-// Step 7 : Unions GraphQL et Types Polymorphes
-// - Union PostContent pour différents types de posts
-// - 4 types concrets : ArticlePost, VideoPost, PollPost, ImagePost
-// - Resolver __resolveType pour la résolution de type
-// - Metadata JSON dans Prisma
-// - Feed unifié avec contenu polymorphe
+const PORT = process.env.PORT || 4000;
 
-// Adaptateur Redis pour le cache Apollo
-const cache = new KeyvAdapter(redisClient as any, {
-  ttl: 300 * 1000, // 5 minutes en millisecondes
+// Step 8 : Subscriptions temps réel avec WebSocket
+// - WebSocket Server pour les subscriptions
+// - PubSub pour la communication événementielle
+// - Écoute en temps réel des nouveaux commentaires
+// - Notifications pour les posts
+
+// Créer le schéma exécutable
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+// Créer l'application Express et le serveur HTTP
+const app = express();
+const httpServer = createServer(app);
+
+// Configurer le serveur WebSocket pour les subscriptions
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: '/graphql',
 });
 
-// Création du serveur Apollo avec cache et plugins
+// Configurer le serveur WebSocket avec graphql-ws
+const serverCleanup = useServer(
+  {
+    schema,
+    context: async () => {
+      const context = createContext();
+      setCurrentContext(context);
+      return context;
+    },
+    onConnect: () => {
+      console.log('🔌 Client WebSocket connecté');
+    },
+    onDisconnect: () => {
+      console.log('🔌 Client WebSocket déconnecté');
+    },
+  },
+  wsServer
+);
+
+// Adaptateur Redis pour le cache
+const cache = new KeyvAdapter(redisClient as any, {
+  ttl: 300 * 1000, // 5 minutes
+});
+
+// Créer le serveur Apollo
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema,
   plugins: [
+    // Proper shutdown for the HTTP server
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+
+    // Proper shutdown for the WebSocket server
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+
+    // Plugins existants
     sqlTrackingPlugin,
     responseCachePlugin({
-      // Cache basé sur les sessions (optionnel)
-      sessionId: (requestContext) => {
-        // Pour cache public, retourner null
-        // Pour cache privé, retourner un ID de session
-        return null;
-      },
+      sessionId: () => null,
     }),
   ],
   cache,
   persistedQueries: {
-    ttl: 900, // 15 minutes pour les persisted queries
+    ttl: 900, // 15 minutes
   },
 });
 
-// Démarrage du serveur
+// Fonction principale pour démarrer le serveur
 async function startServer() {
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-    context: async () => {
-      // Créer un nouveau contexte pour chaque requête
-      const context = createContext();
-      // Le définir comme contexte actif pour Prisma
-      setCurrentContext(context);
-      return context;
-    },
-  });
+  // Démarrer le serveur Apollo
+  await server.start();
 
-  console.log(`🚀 Serveur GraphQL démarré sur ${url}`);
-  console.log(`📚 Formation GraphQL - Step 7: Unions et Types Polymorphes`);
-  console.log(`\n✨ Nouvelles fonctionnalités :`);
-  console.log(`  - Union PostContent pour 4 types de posts`);
-  console.log(`  - ArticlePost, VideoPost, PollPost, ImagePost`);
-  console.log(`  - Resolver __resolveType pour déterminer le type`);
-  console.log(`  - Metadata JSON dans Prisma`);
-  console.log(`  - Feed unifié avec contenu polymorphe`);
-  console.log(`\n💡 Exemple de query avec SQL tracking :`);
-  console.log(`
-  query GetUsersWithPosts {
-    users {
+  // Appliquer le middleware Express
+  app.use(
+    '/graphql',
+    cors<cors.CorsRequest>(),
+    bodyParser.json(),
+    expressMiddleware(server, {
+      context: async () => {
+        const context = createContext();
+        setCurrentContext(context);
+        return context;
+      },
+    })
+  );
+
+  // Démarrer le serveur HTTP
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Serveur GraphQL démarré sur http://localhost:${PORT}/graphql`);
+    console.log(`🔌 WebSocket sur ws://localhost:${PORT}/graphql`);
+    console.log(`📚 Formation GraphQL - Step 8: Subscriptions temps réel`);
+    console.log(`\n✨ Nouvelles fonctionnalités :`);
+    console.log(`  - Subscriptions WebSocket pour temps réel`);
+    console.log(`  - commentAdded : tous les nouveaux commentaires`);
+    console.log(`  - commentAddedToPost : commentaires d'un post spécifique`);
+    console.log(`  - postCreated et postUpdated : notifications de posts`);
+    console.log(`  - PubSub pour la communication événementielle`);
+
+    console.log(`\n💡 Exemple de subscription pour tester :`);
+    console.log(`
+subscription WatchComments {
+  commentAdded {
+    comment {
       id
-      name
-      email
-      posts {
-        id
-        title
+      text
+      createdAt
+      author {
+        name
       }
     }
+    post {
+      id
+      title
+    }
+    action
   }
-  `);
-  console.log(`\n📊 Dans la réponse, regardez "extensions.sql" :`);
-  console.log(`  {`);
-  console.log(`    "data": { ... },`);
-  console.log(`    "extensions": {`);
-  console.log(`      "sql": {`);
-  console.log(`        "queries": [{ "query": "SELECT ...", "duration": 2.5 }],`);
-  console.log(`        "totalQueries": 3,`);
-  console.log(`        "totalDuration": 10.2`);
-  console.log(`      }`);
-  console.log(`    }`);
-  console.log(`  }`);
+}
+    `);
+
+    console.log(`\n📝 Pour tester les subscriptions :`);
+    console.log(`  1. Ouvrir Apollo Studio sur http://localhost:${PORT}/graphql`);
+    console.log(`  2. Exécuter la subscription ci-dessus`);
+    console.log(`  3. Dans un autre onglet, créer un commentaire avec :`);
+    console.log(`
+mutation AddComment {
+  createComment(
+    text: "Nouveau commentaire!"
+    postId: "REMPLACER_PAR_ID_POST"
+    authorId: "REMPLACER_PAR_ID_USER"
+  ) {
+    id
+    text
+  }
+}
+    `);
+    console.log(`  4. Observer le commentaire apparaître en temps réel !`);
+  });
 }
 
-startServer().catch(err => {
-  console.error('Erreur au démarrage du serveur:', err);
+// Démarrer le serveur avec gestion d'erreur
+startServer().catch((err) => {
+  console.error('❌ Erreur au démarrage du serveur:', err);
+  process.exit(1);
 });

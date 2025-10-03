@@ -1,4 +1,4 @@
-// Step 7: Resolvers avec support des Unions
+// Step 8: Resolvers avec Subscriptions
 
 import { userQueryResolvers } from './Query/users';
 import { postQueryResolvers } from './Query/posts';
@@ -8,6 +8,9 @@ import { feedQueryResolvers } from './Query/feed';
 import { userMutationResolvers } from './Mutation/userMutations';
 import { postMutationResolvers } from './Mutation/postMutations';
 import { commentMutationResolvers } from './Mutation/commentMutations';
+
+import { commentSubscriptionResolvers } from './Subscription/commentSubscriptions';
+import { postSubscriptionResolvers } from './Subscription/postSubscriptions';
 
 import { userFieldResolvers } from './User';
 import { postFieldResolvers } from './Post';
@@ -23,7 +26,7 @@ import { PostContentResolvers } from './PostContent';
 
 export const resolvers = {
   Query: {
-    hello: () => 'Hello World! Formation GraphQL Step 7 - Unions et types polymorphes',
+    hello: () => 'Hello World! Formation GraphQL Step 8 - Subscriptions temps réel',
     ...userQueryResolvers,
     ...postQueryResolvers,
     ...commentQueryResolvers,
@@ -33,6 +36,10 @@ export const resolvers = {
     ...userMutationResolvers,
     ...postMutationResolvers,
     ...commentMutationResolvers,
+  },
+  Subscription: {
+    ...commentSubscriptionResolvers,
+    ...postSubscriptionResolvers,
   },
   // Field resolvers pour les relations
   User: userFieldResolvers,
