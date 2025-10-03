@@ -10,15 +10,12 @@ import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import responseCachePlugin from '@apollo/server-plugin-response-cache';
-import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 
 import { typeDefs } from './schema';
 import { resolvers } from './resolvers';
 import { createContext } from './context';
 import { setCurrentContext } from './lib/prisma';
 import { sqlTrackingPlugin } from './plugins/sqlTrackingPlugin';
-import { redisClient } from './lib/redis';
 
 const PORT = process.env.PORT || 4000;
 
@@ -60,11 +57,6 @@ const serverCleanup = useServer(
   wsServer
 );
 
-// Adaptateur Redis pour le cache
-const cache = new KeyvAdapter(redisClient as any, {
-  ttl: 300 * 1000, // 5 minutes
-});
-
 // Créer le serveur Apollo
 const server = new ApolloServer({
   schema,
@@ -85,14 +77,7 @@ const server = new ApolloServer({
 
     // Plugins existants
     sqlTrackingPlugin,
-    responseCachePlugin({
-      sessionId: () => null,
-    }),
   ],
-  cache,
-  persistedQueries: {
-    ttl: 900, // 15 minutes
-  },
 });
 
 // Fonction principale pour démarrer le serveur

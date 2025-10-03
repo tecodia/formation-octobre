@@ -17,8 +17,8 @@ export const feedQueryResolvers = {
         // Enrichir avec les metadata spécifiques selon le type
         ...(post.metadata as object || {})
       },
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
+      createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+      updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt,
     }));
   },
 
@@ -33,8 +33,8 @@ export const feedQueryResolvers = {
         ...post,
         ...(post.metadata as object || {})
       },
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
+      createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+      updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt,
     };
   },
 };
