@@ -10,6 +10,7 @@ export const FeedTypeDef = `#graphql
     type Video {
         id: ID!
         title: String!
+        content: String!
         url: String!
     }
 
@@ -18,4 +19,4 @@ export const FeedTypeDef = `#graphql
         content: String!
         tags: [String!]!
     }
-`
+`;

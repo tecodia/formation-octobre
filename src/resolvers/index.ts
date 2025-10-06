@@ -11,13 +11,16 @@ import { commentMutationResolvers } from './Mutation/commentMutations';
 import { userFieldResolvers } from './User';
 import { postFieldResolvers } from './Post';
 import { commentFieldResolvers } from './Comment';
+import { feedQueryResolvers } from "./Query/feed";
 
 export const resolvers = {
   Query: {
-    hello: () => 'Hello World! Formation GraphQL Step 3 - Architecture refactorisée avec DataSources',
+    hello: () =>
+      "Hello World! Formation GraphQL Step 3 - Architecture refactorisée avec DataSources",
     ...userQueryResolvers,
     ...postQueryResolvers,
     ...commentQueryResolvers,
+    ...feedQueryResolvers,
   },
   Mutation: {
     ...userMutationResolvers,
