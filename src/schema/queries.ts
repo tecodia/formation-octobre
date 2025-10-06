@@ -5,6 +5,9 @@ export const QueriesTypeDef = `#graphql
     # Query de test
     hello: String! @cacheControl(maxAge: 60)
 
+    feed: [Feed!]!
+    articles: [Article!]!
+
     # Users - Cache court pour les listes
     users: [User!]! @cacheControl(maxAge: 60, scope: PUBLIC)
     user(id: ID!): User @cacheControl(maxAge: 300, scope: PUBLIC)

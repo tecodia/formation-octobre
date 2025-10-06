@@ -6,6 +6,7 @@ import { CommentTypeDef } from './types/Comment';
 import { QueriesTypeDef } from './queries';
 import { MutationsTypeDef } from './mutations';
 import { DirectivesTypeDef } from './directives';
+import { FeedTypeDef } from "./types/Feed";
 
 export const typeDefs = [
   DirectivesTypeDef,
@@ -14,4 +15,5 @@ export const typeDefs = [
   CommentTypeDef,
   QueriesTypeDef,
   MutationsTypeDef,
+  FeedTypeDef,
 ];
