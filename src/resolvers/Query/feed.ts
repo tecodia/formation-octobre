@@ -9,16 +9,16 @@ export const feedQueryResolvers = {
     const posts = await postDataSource.getAllPosts();
 
     // Transformer les posts en Feed items avec le contenu approprié
-    return posts.map(post => ({
+    return posts.map((post) => ({
       id: post.id,
       author: null, // Sera résolu par le field resolver
       content: {
         ...post,
         // Enrichir avec les metadata spécifiques selon le type
-        ...(post.metadata as object || {})
+        ...((post.metadata as object) || {}),
       },
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
     }));
   },
 
@@ -31,10 +31,10 @@ export const feedQueryResolvers = {
       author: null, // Sera résolu par le field resolver
       content: {
         ...post,
-        ...(post.metadata as object || {})
+        ...((post.metadata as object) || {}),
       },
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
     };
   },
 };
