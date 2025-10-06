@@ -2,6 +2,7 @@
 
 import { UserDataSource } from '../../datasources/UserDataSource';
 import { CommentDataSource } from '../../datasources/CommentDataSource';
+import { GraphQLContext } from "../../context";
 
 const userDataSource = new UserDataSource();
 const commentDataSource = new CommentDataSource();
@@ -11,7 +12,11 @@ export const postFieldResolvers = {
     return await userDataSource.getUserById(parent.authorId);
   },
 
-  comments: async (parent: { id: string }) => {
-    return await commentDataSource.getCommentsByPostId(parent.id);
+  comments: async (
+    parent: { id: string },
+    _: any,
+    { loaders }: GraphQLContext
+  ) => {
+    return await loaders.commentsByPostLoader.load(parent.id);
   },
 };
