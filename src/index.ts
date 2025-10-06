@@ -19,6 +19,7 @@ const typeDefs = `#graphql
     title: String!
     content: String!
     authorId: ID!
+    user: User!
   }
 
   # Queries disponibles
@@ -31,26 +32,55 @@ const typeDefs = `#graphql
 
     # Récupérer un user par ID
     user(id: ID!): User
+
+    # Récupérer tous les posts
+    posts: [Post!]!
   }
 `;
 
 // Données mockées en mémoire (pas de DB pour le moment)
 const users = [
-  { id: '1', name: 'Alice', email: 'alice@example.com' },
-  { id: '2', name: 'Bob', email: 'bob@example.com' },
-  { id: '3', name: 'Charlie', email: 'charlie@example.com' },
+  { id: "1", name: "Alice", email: "alice@example.com" },
+  { id: "2", name: "Bob", email: "bob@example.com" },
+  { id: "3", name: "Charlie", email: "charlie@example.com" },
+];
+
+const posts = [
+  {
+    id: "1",
+    title: "Post 1",
+    content: "Content 1",
+    authorId: "1",
+    test: "test",
+  },
+  {
+    id: "2",
+    title: "Post 2",
+    content: "Content 2",
+    authorId: "2",
+    test: "test",
+  },
+  {
+    id: "3",
+    title: "Post 3",
+    content: "Content 3",
+    authorId: "3",
+    test: "test",
+  },
 ];
 
 // Resolvers : logique pour répondre aux queries
 const resolvers = {
   Query: {
-    hello: () => 'Hello World! Bienvenue dans la formation GraphQL 🚀',
+    hello: () => "Hello World! Bienvenue dans la formation GraphQL 🚀",
 
     users: () => users,
 
     user: (_: any, args: { id: string }) => {
-      return users.find(user => user.id === args.id);
+      return users.find((user) => user.id === args.id);
     },
+
+    posts: () => posts,
   },
 };
 
