@@ -5,6 +5,7 @@ import { PostTypeDef } from './types/Post';
 import { CommentTypeDef } from './types/Comment';
 import { QueriesTypeDef } from './queries';
 import { MutationsTypeDef } from './mutations';
+import { HomePageTypeDef } from "./types/HomePage";
 
 export const typeDefs = [
   UserTypeDef,
@@ -12,4 +13,5 @@ export const typeDefs = [
   CommentTypeDef,
   QueriesTypeDef,
   MutationsTypeDef,
+  HomePageTypeDef,
 ];

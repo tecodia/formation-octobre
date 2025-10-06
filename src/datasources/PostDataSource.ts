@@ -6,7 +6,14 @@ export class PostDataSource {
   // Queries
   async getAllPosts() {
     return await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async getLatestPosts(limit: number) {
+    return await prisma.post.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
     });
   }
 
@@ -19,7 +26,7 @@ export class PostDataSource {
   async getPostsByAuthorId(authorId: string) {
     return await prisma.post.findMany({
       where: { authorId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -69,7 +76,7 @@ export class PostDataSource {
   async getCommentsByPostId(postId: string) {
     return await prisma.comment.findMany({
       where: { postId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
   }
 }

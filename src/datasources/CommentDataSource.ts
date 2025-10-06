@@ -6,14 +6,21 @@ export class CommentDataSource {
   // Queries
   async getAllComments() {
     return await prisma.comment.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async getLatestComments(limit: number) {
+    return await prisma.comment.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
     });
   }
 
   async getCommentsByPostId(postId: string) {
     return await prisma.comment.findMany({
       where: { postId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
   }
 

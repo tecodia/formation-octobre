@@ -11,13 +11,18 @@ import { commentMutationResolvers } from './Mutation/commentMutations';
 import { userFieldResolvers } from './User';
 import { postFieldResolvers } from './Post';
 import { commentFieldResolvers } from './Comment';
+import { latestCommentResolvers } from "./HomePage/latestComment";
+import { latestPostResolvers } from "./HomePage/latestPost";
+import { homeQueryResolvers } from "./Query/home";
 
 export const resolvers = {
   Query: {
-    hello: () => 'Hello World! Formation GraphQL Step 3 - Architecture refactorisée avec DataSources',
+    hello: () =>
+      "Hello World! Formation GraphQL Step 3 - Architecture refactorisée avec DataSources",
     ...userQueryResolvers,
     ...postQueryResolvers,
     ...commentQueryResolvers,
+    ...homeQueryResolvers,
   },
   Mutation: {
     ...userMutationResolvers,
@@ -28,4 +33,8 @@ export const resolvers = {
   User: userFieldResolvers,
   Post: postFieldResolvers,
   Comment: commentFieldResolvers,
+  HomePage: {
+    ...latestPostResolvers,
+    ...latestCommentResolvers,
+  },
 };
