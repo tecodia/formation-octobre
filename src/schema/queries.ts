@@ -17,5 +17,8 @@ export const QueriesTypeDef = `#graphql
     # Comments
     comments: [Comment!]!
     commentsByPost(postId: ID!): [Comment!]!
+
+    # home Page
+    homePage: HomePage!
   }
 `;
