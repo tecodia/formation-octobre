@@ -12,6 +12,7 @@ import { userFieldResolvers } from './User';
 import { postFieldResolvers } from './Post';
 import { commentFieldResolvers } from './Comment';
 import { feedQueryResolvers } from "./Query/feed";
+import { notificationQueryResolvers } from "./Query/notification";
 
 export const resolvers = {
   Query: {
@@ -21,6 +22,7 @@ export const resolvers = {
     ...postQueryResolvers,
     ...commentQueryResolvers,
     ...feedQueryResolvers,
+    ...notificationQueryResolvers,
   },
   Mutation: {
     ...userMutationResolvers,

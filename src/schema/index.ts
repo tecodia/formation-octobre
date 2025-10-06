@@ -7,6 +7,7 @@ import { QueriesTypeDef } from './queries';
 import { MutationsTypeDef } from './mutations';
 import { DirectivesTypeDef } from './directives';
 import { FeedTypeDef } from "./types/Feed";
+import { NotificationTypeDef } from "./types/Notification";
 
 export const typeDefs = [
   DirectivesTypeDef,
@@ -16,4 +17,5 @@ export const typeDefs = [
   QueriesTypeDef,
   MutationsTypeDef,
   FeedTypeDef,
+  NotificationTypeDef,
 ];
