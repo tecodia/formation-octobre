@@ -10,4 +10,16 @@ export const PostTypeDef = `#graphql
     author: User!
     comments: [Comment!]!
   }
+
+  input CreatePostInput {
+    title: String!
+    content: String!
+    authorId: ID!
+  }
+
+  input UpdatePostInput {
+    id: ID!
+    title: String
+    content: String
+  }
 `;

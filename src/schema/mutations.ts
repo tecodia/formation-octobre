@@ -7,7 +7,7 @@ export const MutationsTypeDef = `#graphql
     updateUser(id: ID!, name: String, email: String): User
 
     # Posts
-    createPost(title: String!, content: String!, authorId: ID!): Post!
+    createPost(input: CreatePostInput!): Post!
     updatePost(id: ID!, title: String, content: String): Post
 
     # Comments
