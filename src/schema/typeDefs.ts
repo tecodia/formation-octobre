@@ -14,6 +14,7 @@ export const typeDefs = `#graphql
     title: String!
     content: String!
     authorId: ID!
+    user: User!
     # On ajoutera la relation author plus tard
   }
 
