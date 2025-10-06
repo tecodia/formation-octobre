@@ -6,6 +6,9 @@ export const QueriesTypeDef = `#graphql
     hello: String! @cacheControl(maxAge: 60)
 
     feed: [Feed!]!
+
+    notifications: [Notification!]!
+
     articles: [Article!]!
 
     # Users - Cache court pour les listes
