@@ -20,7 +20,8 @@ export const pubsub = new RedisPubSub({
 
 // Événements disponibles
 export const SUBSCRIPTION_EVENTS = {
-  COMMENT_ADDED: 'COMMENT_ADDED',
-  POST_CREATED: 'POST_CREATED',
-  POST_UPDATED: 'POST_UPDATED',
+  COMMENT_ADDED: "COMMENT_ADDED",
+  POST_CREATED: "POST_CREATED",
+  POST_UPDATED: "POST_UPDATED",
+  USER_CREATED: "USER_CREATED",
 } as const;

@@ -13,6 +13,15 @@ export const SubscriptionsTypeDef = `#graphql
 
     # Écouter les mises à jour de posts
     postUpdated(postId: ID!): PostSubscriptionPayload!
+
+    # Écouter la création de nouveaux utilisateurs
+    userCreated: UserSubscriptionPayload!
+  }
+
+  # Payload pour les subscriptions de utilisateurs
+  type UserSubscriptionPayload {
+    user: User!
+    action: String!
   }
 
   # Payload pour les subscriptions de commentaires
