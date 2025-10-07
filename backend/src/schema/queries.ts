@@ -21,5 +21,7 @@ export const QueriesTypeDef = `#graphql
     # Comments - Cache court car souvent mis à jour
     comments: [Comment!]! @cacheControl(maxAge: 30, scope: PUBLIC)
     commentsByPost(postId: ID!): [Comment!]! @cacheControl(maxAge: 120, scope: PUBLIC)
+
+    latestComments(limit: Int!): [Comment!]! @cacheControl(maxAge: 30, scope: PUBLIC)
   }
 `;

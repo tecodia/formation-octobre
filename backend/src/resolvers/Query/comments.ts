@@ -12,4 +12,8 @@ export const commentQueryResolvers = {
   commentsByPost: async (_: any, args: { postId: string }) => {
     return await commentDataSource.getCommentsByPostId(args.postId);
   },
+
+  latestComments: async (_: any, args: { limit: number }) => {
+    return await commentDataSource.getLatestComments(args.limit);
+  },
 };

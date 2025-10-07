@@ -2,6 +2,33 @@ import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 
 const GET_FEED = gql`
+fragment ArticleFields on ArticlePost {
+  id
+  title
+  content
+}
+fragment VideoFields on VideoPost {
+  id
+  title
+  videoUrl
+}
+fragment ImageFields on ImagePost {
+  id
+  title
+  images {
+    url
+    caption
+  }
+}
+fragment PollFields on PollPost {
+  id
+  question
+  options {
+    text
+    votes
+  }
+}
+
   query GetFeed {
     feed {
       id
@@ -11,32 +38,10 @@ const GET_FEED = gql`
       }
       content {
         __typename
-        ... on ArticlePost {
-          id
-          title
-          content
-        }
-        ... on VideoPost {
-          id
-          title
-          videoUrl
-        }
-        ... on ImagePost {
-          id
-          title
-          images {
-            url
-            caption
-          }
-        }
-        ... on PollPost {
-          id
-          question
-          options {
-            text
-            votes
-          }
-        }
+        ...ArticleFields
+        ...VideoFields
+        ...ImageFields
+        ...PollFields
       }
       createdAt
       updatedAt

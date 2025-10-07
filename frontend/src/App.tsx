@@ -1,4 +1,5 @@
 import './App.css'
+import Comments from './components/Comment'
 import Feed from './components/Feed'
 
 function App() {
@@ -9,7 +10,9 @@ function App() {
         <p>Frontend React + Apollo Client</p>
       </header>
       <main>
+        <Comments/>
         <Feed />
+
       </main>
     </div>
   )

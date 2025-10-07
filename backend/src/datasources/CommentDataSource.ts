@@ -7,15 +7,23 @@ export class CommentDataSource {
   private cache: CacheManager;
 
   constructor() {
-    this.cache = new CacheManager('comment', 300); // TTL de 5 minutes
+    this.cache = new CacheManager("comment", 300); // TTL de 5 minutes
   }
+
+  async getLatestComments(limit: number) {
+    return await prisma.comment.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+  }
+
   // Queries
   async getAllComments() {
     return await this.cache.withCache(
-      'all-comments',
+      "all-comments",
       async () => {
         return await prisma.comment.findMany({
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         });
       },
       60 // Cache pour 1 minute
@@ -23,15 +31,12 @@ export class CommentDataSource {
   }
 
   async getCommentsByPostId(postId: string) {
-    return await this.cache.withCache(
-      `comments:post:${postId}`,
-      async () => {
-        return await prisma.comment.findMany({
-          where: { postId },
-          orderBy: { createdAt: 'asc' },
-        });
-      }
-    );
+    return await this.cache.withCache(`comments:post:${postId}`, async () => {
+      return await prisma.comment.findMany({
+        where: { postId },
+        orderBy: { createdAt: "asc" },
+      });
+    });
   }
 
   // Mutations
@@ -45,7 +50,7 @@ export class CommentDataSource {
     });
 
     // Invalider le cache après création
-    await this.cache.delete('all-comments');
+    await this.cache.delete("all-comments");
     await this.cache.delete(`comments:post:${postId}`);
 
     return newComment;
