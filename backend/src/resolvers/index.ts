@@ -24,15 +24,18 @@ import { pollPostFieldResolvers } from './PollPost';
 import { imagePostFieldResolvers } from './ImagePost';
 
 import { PostContentResolvers } from './PostContent';
+import { postPaginated } from "./Query/postPaginated";
 
 export const resolvers = {
   Query: {
-    hello: () => 'Hello World! Formation GraphQL Step 10 - Pagination cursor-based',
+    hello: () =>
+      "Hello World! Formation GraphQL Step 10 - Pagination cursor-based",
     ...userQueryResolvers,
     ...postQueryResolvers,
     ...commentQueryResolvers,
     ...feedQueryResolvers,
     feedPaginated,
+    postPaginated,
   },
   Mutation: {
     ...userMutationResolvers,

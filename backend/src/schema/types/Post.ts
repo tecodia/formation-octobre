@@ -10,4 +10,15 @@ export const PostTypeDef = `#graphql
     author: User!
     comments: [Comment!]!
   }
+
+
+  type PostConnection {
+    edges: [PostEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type PostEdge {
+    cursor: String!
+    node: Post!
+  }
 `;

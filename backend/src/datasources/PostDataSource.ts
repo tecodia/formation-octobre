@@ -7,15 +7,35 @@ export class PostDataSource {
   private cache: CacheManager;
 
   constructor() {
-    this.cache = new CacheManager('post', 300); // TTL de 5 minutes
+    this.cache = new CacheManager("post", 300); // TTL de 5 minutes
+  }
+
+  async getPostPaginated(first: number, after: string | null) {
+
+    if (after) {
+    return await prisma.post.findMany({
+      where: {
+        id: {
+          lt: after,
+        },
+      },
+        take: first + 1,
+        orderBy: { createdAt: "desc" },
+      });
+    }
+
+    return await prisma.post.findMany({
+      take: first + 1,
+      orderBy: { createdAt: "desc" },
+    });
   }
   // Queries
   async getAllPosts() {
     return await this.cache.withCache(
-      'all-posts',
+      "all-posts",
       async () => {
         return await prisma.post.findMany({
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         });
       },
       60 // Cache pour 1 minute
@@ -23,26 +43,20 @@ export class PostDataSource {
   }
 
   async getPostById(id: string) {
-    return await this.cache.withCache(
-      `post:${id}`,
-      async () => {
-        return await prisma.post.findUnique({
-          where: { id },
-        });
-      }
-    );
+    return await this.cache.withCache(`post:${id}`, async () => {
+      return await prisma.post.findUnique({
+        where: { id },
+      });
+    });
   }
 
   async getPostsByAuthorId(authorId: string) {
-    return await this.cache.withCache(
-      `posts:author:${authorId}`,
-      async () => {
-        return await prisma.post.findMany({
-          where: { authorId },
-          orderBy: { createdAt: 'desc' },
-        });
-      }
-    );
+    return await this.cache.withCache(`posts:author:${authorId}`, async () => {
+      return await prisma.post.findMany({
+        where: { authorId },
+        orderBy: { createdAt: "desc" },
+      });
+    });
   }
 
   // Mutations
@@ -56,7 +70,7 @@ export class PostDataSource {
     });
 
     // Invalider le cache après création
-    await this.cache.delete('all-posts');
+    await this.cache.delete("all-posts");
     await this.cache.delete(`posts:author:${authorId}`);
 
     return newPost;
@@ -81,7 +95,7 @@ export class PostDataSource {
 
     // Invalider le cache après mise à jour
     await this.cache.delete(`post:${id}`);
-    await this.cache.delete('all-posts');
+    await this.cache.delete("all-posts");
     await this.cache.delete(`posts:author:${existingPost.authorId}`);
 
     return updatedPost;
@@ -104,7 +118,7 @@ export class PostDataSource {
   async getCommentsByPostId(postId: string) {
     return await prisma.comment.findMany({
       where: { postId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
   }
 }
